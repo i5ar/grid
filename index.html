@@ -14,47 +14,47 @@
 			function updateGrid() {
 				const gridSettingsElement = document.getElementById('settings');
 
-				const gridHeightElement = gridSettingsElement['grid-height'];
+				const cellHeightElement = gridSettingsElement['cell-height'];
 
 				const lineWidthElement = gridSettingsElement['line-width'];
 				const strokeStyleElement = gridSettingsElement['stroke-style'];
 
-				const gridHeight = parseInt(gridHeightElement.value, 10);
-				const gridWidth = gridHeight * 2;
+				const cellHeight = parseInt(cellHeightElement.value, 10);
+				const cellWidth = cellHeight * 2;
 
 				const lineWidth = parseInt(lineWidthElement.value, 10);
 
 				const strokeStyle = strokeStyleElement.value;
 
-				gridSettingsElement.querySelector("label[for='grid-height'] span").innerHTML = gridHeight;
+				gridSettingsElement.querySelector("label[for='cell-height'] span").innerHTML = cellHeight;
 				gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
 				gridSettingsElement.querySelector("label[for='stroke-style'] span").innerHTML = strokeStyle;
 
-				oCanvas.setAttribute('width', gridWidth);
-				oCanvas.setAttribute('height', gridHeight);
+				oCanvas.setAttribute('width', cellWidth);
+				oCanvas.setAttribute('height', cellHeight);
 
-				oContext.clearRect(0, 0, gridWidth, gridHeight);
+				oContext.clearRect(0, 0, cellWidth, cellHeight);
 
 				oContext.strokeStyle = strokeStyle;
 				oContext.lineWidth = lineWidth;
 
 				oContext.beginPath();
-				oContext.moveTo(gridWidth / 2, 0);
-				oContext.lineTo(0, gridHeight / 2);
-				oContext.lineTo(gridWidth / 2, gridHeight);
-				oContext.lineTo(gridWidth, gridHeight / 2);
-				oContext.lineTo(gridWidth / 2, 0);
-				oContext.lineTo(gridWidth / 2, gridHeight);
-				oContext.moveTo(gridWidth , 0);
-				oContext.lineTo(gridWidth, gridHeight);
+				oContext.moveTo(cellWidth / 2, 0);
+				oContext.lineTo(0, cellHeight / 2);
+				oContext.lineTo(cellWidth / 2, cellHeight);
+				oContext.lineTo(cellWidth, cellHeight / 2);
+				oContext.lineTo(cellWidth / 2, 0);
+				oContext.lineTo(cellWidth / 2, cellHeight);
+				oContext.moveTo(cellWidth , 0);
+				oContext.lineTo(cellWidth, cellHeight);
 				oContext.moveTo(0 , 0);
-				oContext.lineTo(0, gridHeight);
+				oContext.lineTo(0, cellHeight);
 				oContext.stroke();
 
 				oElement.style.backgroundImage = 'url("'+oCanvas.toDataURL()+'")';
 			}
 
-			function downloadPattern() {
+			function downloadCell() {
 				const link = document.createElement('a');
 				link.download = 'isometric.png';
 				link.href = oCanvas.toDataURL()
@@ -69,16 +69,16 @@
 	<body onload="updateGrid();">
 		<form id="settings">
 			
-			<label for="grid-height">grid height<span></span></label>
-			<input type="range" id="grid-height" value="32" name="grid-height" min="10" max="200" oninput="updateGrid();" />
+			<label for="cell-height">cell height<span></span></label>
+			<input type="range" id="cell-height" value="32" name="cell-height" min="10" max="200" oninput="updateGrid();" />
 	
 			<label for="line-width">line width<span></span></label>
 			<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
 		
 			<label for="stroke-style">stroke style<span></span></label>
-			<input type="color" id="stroke-style" value="#decaff" name="stroke-style" oninput="updateGrid();" />
+			<input type="color" id="stroke-style" value="#868686" name="stroke-style" oninput="updateGrid();" />
 
-			<input type="button" value="download" onclick="downloadPattern();" />
+			<input type="button" value="download" onclick="downloadCell();" />
 
 			<input type="button" value="print" onclick="printGrid();">
 
