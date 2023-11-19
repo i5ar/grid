@@ -1,62 +1,87 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Isometric Grid Generator</title>
 		<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
 		<script type="text/javascript">
 
-			var oElement = document.documentElement;
-			var oCanvas = document.createElement('canvas');
-			var oContext = oCanvas.getContext("2d");
+			const oElement = document.documentElement;
+			const oCanvas = document.createElement('canvas');
+			const oContext = oCanvas.getContext("2d");
 
 			function updateGrid() {
-				var gridSettings = document.getElementById('grid-settings');
+				const gridSettingsElement = document.getElementById('settings');
 
-				var gridWidthElement = gridSettings['grid-width'];
-				var gridHeightElement = gridSettings['grid-height'];
+				const gridHeightElement = gridSettingsElement['grid-height'];
 
-				var gridWidth = parseInt(gridWidthElement.value, 10);
-				var gridHeight = parseInt(gridHeightElement.value, 10);
+				const lineWidthElement = gridSettingsElement['line-width'];
+				const strokeStyleElement = gridSettingsElement['stroke-style'];
 
-				gridWidthElement.previousElementSibling.innerHTML = gridWidth;
-				gridHeightElement.previousElementSibling.innerHTML = gridHeight;
+				const gridHeight = parseInt(gridHeightElement.value, 10);
+				const gridWidth = gridHeight * 2;
+
+				const lineWidth = parseInt(lineWidthElement.value, 10);
+
+				const strokeStyle = strokeStyleElement.value;
+
+				gridSettingsElement.querySelector("label[for='grid-height'] span").innerHTML = gridHeight;
+				gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
+				gridSettingsElement.querySelector("label[for='stroke-style'] span").innerHTML = strokeStyle;
 
 				oCanvas.setAttribute('width', gridWidth);
 				oCanvas.setAttribute('height', gridHeight);
 
 				oContext.clearRect(0, 0, gridWidth, gridHeight);
+
+				oContext.strokeStyle = strokeStyle;
+				oContext.lineWidth = lineWidth;
+
 				oContext.beginPath();
 				oContext.moveTo(gridWidth / 2, 0);
 				oContext.lineTo(0, gridHeight / 2);
 				oContext.lineTo(gridWidth / 2, gridHeight);
 				oContext.lineTo(gridWidth, gridHeight / 2);
 				oContext.lineTo(gridWidth / 2, 0);
+				oContext.lineTo(gridWidth / 2, gridHeight);
+				oContext.moveTo(gridWidth , 0);
+				oContext.lineTo(gridWidth, gridHeight);
+				oContext.moveTo(0 , 0);
+				oContext.lineTo(0, gridHeight);
 				oContext.stroke();
+
 				oElement.style.backgroundImage = 'url("'+oCanvas.toDataURL()+'")';
 			}
 
-			function download() {
-				var imageUri = oElement.style.backgroundImage;
-				imageUri = imageUri.split('(').pop();
-				imageUri = imageUri.split(')').shift();
-				window.open(imageUri);
+			function downloadPattern() {
+				const link = document.createElement('a');
+				link.download = 'isometric.png';
+				link.href = oCanvas.toDataURL()
+				link.click();
+			}
+
+			function printGrid() {
+				window.print();
 			}
 		</script>
 	</head>
 	<body onload="updateGrid();">
-		<div class="toolbar-bg"></div>
-		<form id="grid-settings" class="toolbar">
-			<div class="setting-name">Grid width</div>
-			<div class="setting-value">
-				<span></span>
-				<input onchange="updateGrid();" type="range" value="64" name="grid-width" min="10" max="200" />
-			</div>
-			<div class="setting-name">Grid height</div>
-			<div class="setting-value">
-				<span></span>
-				<input onchange="updateGrid();" type="range" value="32" name="grid-height" min="10" max="200" />
-			</div>
-			<input type="button" value="Download background" onclick="download();" />
+		<form id="settings">
+			
+			<label for="grid-height">grid height<span></span></label>
+			<input type="range" id="grid-height" value="32" name="grid-height" min="10" max="200" oninput="updateGrid();" />
+	
+			<label for="line-width">line width<span></span></label>
+			<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
+		
+			<label for="stroke-style">stroke style<span></span></label>
+			<input type="color" id="stroke-style" value="#decaff" name="stroke-style" oninput="updateGrid();" />
+
+			<input type="button" value="download" onclick="downloadPattern();" />
+
+			<input type="button" value="print" onclick="printGrid();">
+
 		</form>
 	</body>
 </html>
