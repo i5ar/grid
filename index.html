@@ -67,6 +67,7 @@
 		</script>
 	</head>
 	<body onload="updateGrid();">
+		<header>iso grid generator</header>
 		<form id="settings">
 			
 			<label for="cell-height">cell height<span></span></label>
@@ -76,9 +77,9 @@
 			<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
 		
 			<label for="stroke-style">stroke style<span></span></label>
-			<input type="color" id="stroke-style" value="#868686" name="stroke-style" oninput="updateGrid();" />
+			<input type="color" id="stroke-style" value="#888888" name="stroke-style" oninput="updateGrid();" />
 
-			<input type="button" value="download" onclick="downloadCell();" />
+			<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
 
 			<input type="button" value="print" onclick="printGrid();">
 
