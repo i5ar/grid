@@ -1,115 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="description" content="isometric grid generator">
-		<title>isometric grid generator</title>
-		<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
-		<script type="text/javascript">
 
-			const oElement = document.documentElement;
-			const oCanvas = document.createElement('canvas');
-			const oContext = oCanvas.getContext("2d");
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="isometric grid generator">
+	<title>isometric grid generator</title>
+	<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
+	<script type="text/javascript">
 
-			function updateGrid() {
-				const gridSettingsElement = document.getElementById('settings');
+		const oElement = document.documentElement;
+		const oCanvas = document.createElement('canvas');
+		const oContext = oCanvas.getContext("2d");
 
-				const cellHeightElement = gridSettingsElement['cell-height'];
+		function updateGrid() {
+			const gridSettingsElement = document.getElementById('settings');
 
-				const lineWidthElement = gridSettingsElement['line-width'];
-				const strokeStyleElement = gridSettingsElement['stroke-style'];
+			const cellHeightElement = gridSettingsElement['cell-height'];
 
-				const cellHeight = parseInt(cellHeightElement.value, 10);
-				const cellWidth = cellHeight * Math.sqrt(3);
+			const lineWidthElement = gridSettingsElement['line-width'];
+			const strokeStyleElement = gridSettingsElement['stroke-style'];
 
-				const lineWidth = parseInt(lineWidthElement.value, 10);
+			const cellHeight = parseInt(cellHeightElement.value, 10);
+			const cellWidth = cellHeight * Math.sqrt(3);
 
-				const strokeStyle = strokeStyleElement.value;
+			const lineWidth = parseInt(lineWidthElement.value, 10);
 
-				gridSettingsElement.querySelector("label[for='cell-height'] span").innerHTML = cellHeight;
-				gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
-				gridSettingsElement.querySelector("label[for='stroke-style'] span").innerHTML = strokeStyle;
+			const strokeStyle = strokeStyleElement.value;
 
-				oCanvas.setAttribute('width', cellWidth);
-				oCanvas.setAttribute('height', cellHeight);
+			gridSettingsElement.querySelector("label[for='cell-height'] span").innerHTML = cellHeight;
+			gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
+			gridSettingsElement.querySelector("label[for='stroke-style'] span").innerHTML = strokeStyle;
 
-				oContext.clearRect(0, 0, cellWidth, cellHeight);
+			oCanvas.setAttribute('width', cellWidth);
+			oCanvas.setAttribute('height', cellHeight);
 
-				oContext.strokeStyle = strokeStyle;
-				oContext.lineWidth = lineWidth;
+			oContext.clearRect(0, 0, cellWidth, cellHeight);
 
-				oContext.beginPath();
-				oContext.moveTo(cellWidth / 2, 0);
-				oContext.lineTo(0, cellHeight / 2);
-				oContext.lineTo(cellWidth / 2, cellHeight);
-				oContext.lineTo(cellWidth, cellHeight / 2);
-				oContext.lineTo(cellWidth / 2, 0);
-				oContext.lineTo(cellWidth / 2, cellHeight);
-				oContext.moveTo(cellWidth , 0);
-				oContext.lineTo(cellWidth, cellHeight);
-				oContext.moveTo(0 , 0);
-				oContext.lineTo(0, cellHeight);
-				oContext.stroke();
+			oContext.strokeStyle = strokeStyle;
+			oContext.lineWidth = lineWidth;
 
-				oElement.style.backgroundImage = 'url("'+oCanvas.toDataURL()+'")';
-			}
+			oContext.beginPath();
+			oContext.moveTo(cellWidth / 2, 0);
+			oContext.lineTo(0, cellHeight / 2);
+			oContext.lineTo(cellWidth / 2, cellHeight);
+			oContext.lineTo(cellWidth, cellHeight / 2);
+			oContext.lineTo(cellWidth / 2, 0);
+			oContext.lineTo(cellWidth / 2, cellHeight);
+			oContext.moveTo(cellWidth, 0);
+			oContext.lineTo(cellWidth, cellHeight);
+			oContext.moveTo(0, 0);
+			oContext.lineTo(0, cellHeight);
+			oContext.stroke();
 
-			function downloadCell() {
-				const link = document.createElement('a');
-				link.download = 'isometric.png';
-				link.href = oCanvas.toDataURL()
-				link.click();
-			}
+			oElement.style.backgroundImage = 'url("' + oCanvas.toDataURL() + '")';
+		}
 
-			function printGrid() {
-				window.print();
-			}
-		</script>
-	</head>
-	<body onload="updateGrid();">
-		
-		<form id="settings">
-			
-			<label for="cell-height">cell height<span></span></label>
-			<input type="range" id="cell-height" value="32" name="cell-height" min="10" max="200" oninput="updateGrid();" />
-	
-			<label for="line-width">line width<span></span></label>
-			<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
-		
-			<label for="stroke-style">stroke style<span></span></label>
-			<input type="color" id="stroke-style" value="#888888" name="stroke-style" oninput="updateGrid();" />
+		function downloadCell() {
+			const link = document.createElement('a');
+			link.download = 'isometric.png';
+			link.href = oCanvas.toDataURL()
+			link.click();
+		}
 
-			<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
+		function printGrid() {
+			window.print();
+		}
+	</script>
+</head>
 
-			<input type="button" value="print" onclick="printGrid();">
+<body onload="updateGrid();">
 
-		</form>
+	<main id="sketch-holder">
 
-		<main id="sketch-holder"></main>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js" integrity="sha512-pgK6Wo8doipc/IPQ0ilH3b47ww01345nR9ud1/6Qp0n+lQlEW9zuw6JhysRcUpBY4yKuVZjn1MAkDxbnncuGsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<canvas id="canvas" class="canvas"></canvas>
+	</main>
+
+	<aside>
+		<div class="draw">
+			<input type="button" id="polyline" value="polyline">
+			<input type="button" id="polygon" value="polygon">
+		</div>
+		<div class="edit">
+			<input type="button" id="remove" value="remove">
+		</div>
+
+		<!-- <div id="debug">double click to end polyline or close polygon</div> -->
+	</aside>
+
+	<form id="settings">
+
+		<label for="cell-height">cell height<span></span></label>
+		<input type="range" id="cell-height" value="64" name="cell-height" min="10" max="200" oninput="updateGrid();" />
+
+		<label for="line-width">line width<span></span></label>
+		<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
+
+		<label for="stroke-style">stroke style<span></span></label>
+		<input type="color" id="stroke-style" value="#888888" name="stroke-style" oninput="updateGrid();" />
+
+		<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
+
+		<input type="button" value="print" onclick="printGrid();">
+
+	</form>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.3.1/fabric.min.js"></script>
 	<script>
 		// https://stackoverflow.com/questions/58711027/draw-a-straight-line-between-two-points-selected-in-a-mouse-down-event
-		function setup() {
-			var canvas = createCanvas(windowWidth, windowHeight);
-			canvas.parent('sketch-holder');
-			stroke(0);
-			strokeWeight(4);
-			var x
-			var y;
-			var l;
-		}
 
-		// https://p5js.org/examples/drawing-continuous-lines.html
-		function mousePressed() {
-			x = mouseX;
-			y = mouseY;
-		}
+		//revised 3/2/2021 - switched splice() to mousedown
+		// https://codepen.io/Rstewart/pen/ZEBORxN
+		var canvas, obj, polyline, mouseDown = false, pts = [], lastPt = 1, polyType = 'Polyline', polyBtn, poly = false, bgColor, id = -1;
 
-		function mouseReleased() {
-			line(x, y, mouseX, mouseY);
-		}
-		// function mouseDragged() {}
+		$(document).ready(function () {
+			canvas = new fabric.Canvas($('canvas')[0], { objectCaching: false });
+
+			canvas.setHeight(window.innerHeight);
+			canvas.setWidth(window.innerWidth);
+
+			canvas.on('mouse:down', function (e) {
+				if (poly == true) {
+					if (pts.length > 1) { pts.splice(-1, 1); } //remove duplicate start points
+					polyline = new fabric.Polyline(pts, {
+						objectCaching: false, name: 'temp', fill: '', stroke: 'black', strokeWidth: 4,
+						originX: 'center', originY: 'center', selectable: false
+					});
+					canvas.add(polyline); polyline.points[pts.length] = { x: mouse.x, y: mouse.y }; lastPt++; mouseDown = true;
+					// $('#debug').text(JSON.stringify(pts));
+				}
+			});
+
+			canvas.on('mouse:move', function (e) {
+				mouse = canvas.getPointer(e.e);
+				if (poly == true && mouseDown) {
+					polyline.points[lastPt - 1] = { x: mouse.x, y: mouse.y }; canvas.renderAll();
+				}
+			});
+
+			canvas.on('mouse:dblclick', function (e) {
+				canvas.forEachObject(function (obj) { if (obj.name == 'temp') { canvas.remove(obj); } });
+				polyObj = new fabric[polyType](pts, {
+					objectCaching: false, id: id++, fill: bgColor, stroke: 'black', strokeWidth: 4,
+					originX: 'center', originY: 'center', selectable: true
+				});
+				canvas.add(polyObj); poly = false; polyBtn = ''; lastPt = 1; mouseDown = false; pts = [];
+				$('.draw input').removeClass('active');
+
+			}); //end dblclick
+
+			$('.edit input#remove').on('click', function (e) {
+				canvas.remove(...canvas.getActiveObjects());
+			});
+
+			document.onkeydown = function (evt) {
+				evt = evt || window.event;
+				if (evt.key === "Delete") {
+					canvas.remove(...canvas.getActiveObjects());
+				} else if (evt.key === "Escape") {
+					console.log(pts.slice(0, -1));
+					canvas.forEachObject(function (obj) { if (obj.name == 'temp') { canvas.remove(obj); } });
+					polyObj = new fabric[polyType](pts.slice(0, -1), {
+						objectCaching: false, id: id++, fill: bgColor, stroke: 'black', strokeWidth: 4,
+						originX: 'center', originY: 'center', selectable: true
+					});
+					canvas.add(polyObj); poly = false; polyBtn = ''; lastPt = 1; mouseDown = false; pts = [];
+					$('.draw input').removeClass('active');
+				}
+			};
+
+			canvas.on('selection:created', function () { obj = canvas.getActiveObject(); });
+			canvas.on('selection:cleared', function () { obj = ''; });
+
+			$('.draw input').on('click', function (e) {
+				$('.draw input').removeClass('active');
+				$(this).addClass('active'); polyBtn = $(this).attr('id');
+				if (polyBtn == 'polyline') { polyType = 'Polyline'; poly = true; bgColor = ''; }
+				if (polyBtn == 'polygon') { polyType = 'Polygon'; poly = true; bgColor = 'rgba(255,0,0,0.5)'; }
+			});
+
+		}); //end ready
 	</script>
-	</body>
+</body>
+
 </html>

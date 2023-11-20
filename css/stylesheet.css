@@ -6,6 +6,25 @@ body {
 	justify-content: flex-end;
 }
 
+aside {
+	position: absolute;
+	top: 0;
+	width: 100vw;
+	padding: 0.5em 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(255, 255, 255, 0.8);
+}
+aside div {
+	padding: 0 1em;
+}
+
+aside input {
+	margin: 0 0 0 0.5em;
+	height: 2em;
+}
+
 form {
 	position: absolute;
 	width: 100vw;
@@ -36,6 +55,7 @@ form [for="stroke-style"] {
 		margin-right: 1em;
 	}
 
+	aside,
     form input {
         display: none;
     }
