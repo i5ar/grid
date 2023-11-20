@@ -3,7 +3,8 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Isometric Grid Generator</title>
+		<meta name="description" content="isometric grid generator">
+		<title>isometric grid generator</title>
 		<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
 		<script type="text/javascript">
 
@@ -20,7 +21,7 @@
 				const strokeStyleElement = gridSettingsElement['stroke-style'];
 
 				const cellHeight = parseInt(cellHeightElement.value, 10);
-				const cellWidth = cellHeight * 2;
+				const cellWidth = cellHeight * Math.sqrt(3);
 
 				const lineWidth = parseInt(lineWidthElement.value, 10);
 
@@ -67,7 +68,7 @@
 		</script>
 	</head>
 	<body onload="updateGrid();">
-		<header>iso grid generator</header>
+		
 		<form id="settings">
 			
 			<label for="cell-height">cell height<span></span></label>
@@ -84,5 +85,31 @@
 			<input type="button" value="print" onclick="printGrid();">
 
 		</form>
+
+		<main id="sketch-holder"></main>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js" integrity="sha512-pgK6Wo8doipc/IPQ0ilH3b47ww01345nR9ud1/6Qp0n+lQlEW9zuw6JhysRcUpBY4yKuVZjn1MAkDxbnncuGsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script>
+		// https://stackoverflow.com/questions/58711027/draw-a-straight-line-between-two-points-selected-in-a-mouse-down-event
+		function setup() {
+			var canvas = createCanvas(windowWidth, windowHeight);
+			canvas.parent('sketch-holder');
+			stroke(0);
+			strokeWeight(4);
+			var x
+			var y;
+			var l;
+		}
+
+		// https://p5js.org/examples/drawing-continuous-lines.html
+		function mousePressed() {
+			x = mouseX;
+			y = mouseY;
+		}
+
+		function mouseReleased() {
+			line(x, y, mouseX, mouseY);
+		}
+		// function mouseDragged() {}
+	</script>
 	</body>
 </html>
