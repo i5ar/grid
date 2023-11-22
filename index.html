@@ -112,7 +112,7 @@
 
 		//revised 3/2/2021 - switched splice() to mousedown
 		// https://codepen.io/Rstewart/pen/ZEBORxN
-		var canvas, obj, polyline, mouseDown = false, pts = [], lastPt = 1, polyType = 'Polyline', polyBtn, poly = false, bgColor, id = -1;
+		var canvas, obj, polyline, mouseDown = false, pts = [], lastPt = 1, polyType = 'Polyline', polyBtn, poly = false, bgColor, spessore, id = -1;
 
 		$(document).ready(function () {
 			canvas = new fabric.Canvas($('canvas')[0], { objectCaching: false });
@@ -129,6 +129,10 @@
 					});
 					canvas.add(polyline); polyline.points[pts.length] = { x: mouse.x, y: mouse.y }; lastPt++; mouseDown = true;
 					// $('#debug').text(JSON.stringify(pts));
+
+				} else {
+					// NOTE: Make all objects selectable while not drawing.
+					canvas.getObjects().map(obj_ => obj_.selectable = true);
 				}
 			});
 
@@ -142,7 +146,7 @@
 			canvas.on('mouse:dblclick', function (e) {
 				canvas.forEachObject(function (obj) { if (obj.name == 'temp') { canvas.remove(obj); } });
 				polyObj = new fabric[polyType](pts, {
-					objectCaching: false, id: id++, fill: bgColor, stroke: 'black', strokeWidth: 4,
+					objectCaching: false, id: id++, fill: bgColor, stroke: 'black', strokeWidth: spessore,
 					originX: 'center', originY: 'center', selectable: true
 				});
 				canvas.add(polyObj); poly = false; polyBtn = ''; lastPt = 1; mouseDown = false; pts = [];
@@ -150,19 +154,14 @@
 
 			}); //end dblclick
 
-			$('.edit input#remove').on('click', function (e) {
-				canvas.remove(...canvas.getActiveObjects());
-			});
-
 			document.onkeydown = function (evt) {
 				evt = evt || window.event;
 				if (evt.key === "Delete") {
 					canvas.remove(...canvas.getActiveObjects());
 				} else if (evt.key === "Escape") {
-					console.log(pts.slice(0, -1));
 					canvas.forEachObject(function (obj) { if (obj.name == 'temp') { canvas.remove(obj); } });
 					polyObj = new fabric[polyType](pts.slice(0, -1), {
-						objectCaching: false, id: id++, fill: bgColor, stroke: 'black', strokeWidth: 4,
+						objectCaching: false, id: id++, fill: bgColor, stroke: 'black', strokeWidth: spessore,
 						originX: 'center', originY: 'center', selectable: true
 					});
 					canvas.add(polyObj); poly = false; polyBtn = ''; lastPt = 1; mouseDown = false; pts = [];
@@ -175,10 +174,17 @@
 
 			$('.draw input').on('click', function (e) {
 				$('.draw input').removeClass('active');
+
+				// NOTE: Make all objects not selectable while drawing.
+				canvas.getObjects().map(obj_ => obj_.selectable = false);
+
 				$(this).addClass('active'); polyBtn = $(this).attr('id');
-				if (polyBtn == 'polyline') { polyType = 'Polyline'; poly = true; bgColor = ''; }
-				if (polyBtn == 'polygon') { polyType = 'Polygon'; poly = true; bgColor = 'rgba(255,0,0,0.5)'; }
+				if (polyBtn == 'polyline') { polyType = 'Polyline'; poly = true; bgColor = ''; spessore = 4; }
+				if (polyBtn == 'polygon') { polyType = 'Polygon'; poly = true; bgColor = 'rgba(255,0,0,0.5)', spessore = 0;}
 			});
+
+			// NOTE: Remove object.
+			document.querySelector('.edit input#remove').onclick = () => canvas.remove(...canvas.getActiveObjects());
 
 		}); //end ready
 	</script>

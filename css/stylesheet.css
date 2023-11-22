@@ -64,3 +64,8 @@ form [for="stroke-style"] {
 		display: flex;
 	}
 }
+
+/* Canvas */
+.active {
+	color: tomato;
+}
