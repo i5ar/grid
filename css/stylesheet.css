@@ -69,3 +69,12 @@ form [for="stroke-style"] {
 .active {
 	color: tomato;
 }
+.magenta {
+	background-color: magenta;
+}
+.cyan {
+	background-color: cyan;
+}
+.yellow {
+	background-color: yellow;
+}
