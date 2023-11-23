@@ -69,6 +69,40 @@ form [for="stroke-style"] {
 .active {
 	color: tomato;
 }
+
+/* Button https://copy-paste-css.com/ */
+.line {
+	cursor: pointer;
+	outline: 0;
+	display: inline-block;
+	font-weight: 400;
+	text-align: center;
+	background-color: transparent;
+	border: 1px solid transparent;
+	padding: 6px 12px;
+	font-size: 1rem;
+	border-radius: .25rem;
+	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+	color: black;
+	border-color: black;
+}
+
+.solid {
+	cursor: pointer;
+	outline: 0;
+	color: #000;
+	background-color: #0d6efd;
+	border-color: #0d6efd;
+	display: inline-block;
+	font-weight: 400;
+	text-align: center;
+	border: 1px solid transparent;
+	padding: 6px 12px;
+	font-size: 16px;
+	border-radius: .25rem;
+	transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
 .magenta {
 	background-color: magenta;
 }
@@ -77,4 +111,7 @@ form [for="stroke-style"] {
 }
 .yellow {
 	background-color: yellow;
+}
+.gray {
+	background-color: gainsboro;
 }

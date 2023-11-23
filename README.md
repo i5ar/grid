@@ -7,3 +7,9 @@ and then download it as png image.
 You can also check the source code yourself and see how it's done.
 
 [See the live demo here](http://i5ar.github.io/iso-grid-generator/)
+
+
+TODO
+- Transform a polyline to a polygon if the ending point = starting point;
+- secchiello with 3 colors;
+- scale image within the grid.
