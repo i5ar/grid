@@ -87,7 +87,7 @@
 			<input type="button" id="remove" value="remove" class="solid gray">
 		</div>
 
-		<!-- <div id="debug">double click to end polyline or close polygon</div> -->
+		<div id="debug">double click to end polyline or close polygon</div>
 	</aside>
 
 	<form id="settings">
@@ -107,7 +107,6 @@
 
 	</form>
 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.3.1/fabric.min.js"></script>
 	<script>
 		// https://stackoverflow.com/questions/58711027/draw-a-straight-line-between-two-points-selected-in-a-mouse-down-event
@@ -116,14 +115,14 @@
 		// https://codepen.io/Rstewart/pen/ZEBORxN
 		var canvas, obj, polyline, mouseDown = false, pts = [], lastPt = 1, polyType = 'Polyline', polyBtn, poly = false, bgColor, sColor, spessore, id = -1;
 
-		$(document).ready(function () {
-			canvas = new fabric.Canvas($('canvas')[0], { objectCaching: false });
+			canvas = new fabric.Canvas(document.querySelector("canvas"), { objectCaching: false });
 
 			canvas.setHeight(window.innerHeight);
 			canvas.setWidth(window.innerWidth);
 
 			canvas.on('mouse:down', function (e) {
 				if (poly == true) {
+					
 					if (pts.length > 1) { pts.splice(-1, 1); } //remove duplicate start points
 					polyline = new fabric.Polyline(pts, {
 						objectCaching: false, name: 'temp', fill: '', stroke: sColor, strokeWidth: 4,
@@ -142,7 +141,7 @@
 					const nearestY = nearestMultiple(mouse.y, gridModuleY);
 
 					canvas.add(polyline); polyline.points[pts.length] = { x: nearestX, y: nearestY }; lastPt++; mouseDown = true;
-					// $('#debug').text(JSON.stringify(pts));
+					document.querySelector("#debug").textContent = JSON.stringify(pts)
 
 				} else {
 					// NOTE: Make all objects selectable while not drawing.
@@ -164,7 +163,7 @@
 					originX: 'center', originY: 'center', selectable: true
 				});
 				canvas.add(polyObj); poly = false; polyBtn = ''; lastPt = 1; mouseDown = false; pts = [];
-				$('.draw input').removeClass('active');
+				document.querySelector('.draw input').classList.remove('active');
 
 			}); //end dblclick
 
@@ -173,36 +172,77 @@
 				if (evt.key === "Delete") {
 					canvas.remove(...canvas.getActiveObjects());
 				} else if (evt.key === "Escape") {
-					canvas.forEachObject(function (obj) { if (obj.name == 'temp') { canvas.remove(obj); } });
+					canvas.forEachObject(function (obj) {
+						if (obj.name == 'temp') {
+							canvas.remove(obj);
+						}
+					});
 					polyObj = new fabric[polyType](pts.slice(0, -1), {
 						objectCaching: false, id: id++, fill: bgColor, stroke: sColor, strokeWidth: spessore,
 						originX: 'center', originY: 'center', selectable: true
 					});
 					canvas.add(polyObj); poly = false; polyBtn = ''; lastPt = 1; mouseDown = false; pts = [];
-					$('.draw input').removeClass('active');
+					document.querySelector('.draw input').classList.remove('active');
 				}
 			};
 
-			canvas.on('selection:created', function () { obj = canvas.getActiveObject(); });
-			canvas.on('selection:cleared', function () { obj = ''; });
+			canvas.on('selection:created', function () {
+				obj = canvas.getActiveObject();
+			});
+			canvas.on('selection:cleared', function () {
+				obj = '';
+			});
 
-			$('.draw input').on('click', function (e) {
-				$('.draw input').removeClass('active');
+			const drawInputs = document.querySelectorAll(".draw input");
+			for (let i = 0; i < drawInputs.length; i++) {
+
+				drawInputs[i].addEventListener('click', function (event) {
+
+					for (let i = 0; i < drawInputs.length; i++) {
+						drawInputs[i].classList.remove('active');
+					}
+
+					this.classList.add('active');
+					polyBtn = this.getAttribute("id");
+
+					if (polyBtn == 'polyline') {
+						polyType = 'Polyline';
+						poly = true;
+						bgColor = '';
+						sColor = 'black';
+						spessore = 4;
+					}
+					if (polyBtn == 'polygon-magenta') {
+						polyType = 'Polygon';
+						poly = true;
+						bgColor = 'rgba(255,0,255,0.5)';
+						sColor = 'magenta';
+						spessore = 0;
+					}
+					if (polyBtn == 'polygon-cyan') {
+						polyType = 'Polygon';
+						poly = true;
+						bgColor = 'rgba(0,255,255,0.5)';
+						sColor = 'cyan';
+						spessore = 0;
+					}
+					if (polyBtn == 'polygon-yellow') {
+						polyType = 'Polygon';
+						poly = true;
+						bgColor = 'rgba(255,255,0,0.5)';
+						sColor = 'yellow';
+						spessore = 0;
+					}
 
 				// NOTE: Make all objects not selectable while drawing.
 				canvas.getObjects().map(obj_ => obj_.selectable = false);
 
-				$(this).addClass('active'); polyBtn = $(this).attr('id');
-				if (polyBtn == 'polyline') { polyType = 'Polyline'; poly = true; bgColor = ''; sColor = 'black'; spessore = 4; }
-				if (polyBtn == 'polygon-magenta') { polyType = 'Polygon'; poly = true; bgColor = 'rgba(255,0,255,0.5)'; sColor = 'magenta'; spessore = 0;}
-				if (polyBtn == 'polygon-cyan') { polyType = 'Polygon'; poly = true; bgColor = 'rgba(0,255,255,0.5)'; sColor = 'cyan'; spessore = 0;}
-				if (polyBtn == 'polygon-yellow') { polyType = 'Polygon'; poly = true; bgColor = 'rgba(255,255,0,0.5)'; sColor = 'yellow'; spessore = 0;}
-			});
+				}, false);
+			}
 
 			// NOTE: Remove object.
 			document.querySelector('.edit input#remove').onclick = () => canvas.remove(...canvas.getActiveObjects());
 
-		}); //end ready
 	</script>
 </body>
 
