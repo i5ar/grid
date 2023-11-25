@@ -18,12 +18,16 @@
 
 	<aside>
 		<div class="draw">
-			<input type="button" id="polyline" value="polyline" />
-			<input type="button" id="polygon" value="polygon" />
+			<input type="button" id="polyline" value="⏹️ polyline" />
+			<input type="button" id="polygon" value="🟦 polygon" />
 		</div>
 		<div class="edit">
-			<input type="color" id="fill" value="#ff00ff" style="vertical-align: middle"/>
-			<input type="button" id="remove" value="remove" />
+			<input type="color" id="fill" value="#ff00ff" style="height: 24px" />
+			<input type="button" id="remove" value="❌ remove" />
+		</div>
+		<div class="file">
+			<input type="button" id="save" value="💾 save">
+			<input type="button" id="load" value="⬆️ load">
 		</div>
 
 		<!-- <div id="debug">double click to end polyline or close polygon</div> -->
@@ -38,15 +42,18 @@
 		<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
 
 		<label for="stroke-style">stroke style<span></span></label>
-		<input type="color" id="stroke-style" value="#888888" name="stroke-style" oninput="updateGrid();" />
+		<input type="color" id="stroke-style" value="#888888" name="stroke-style" style="height: 24px" oninput="updateGrid();" />
 
 		<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
 
-		<input type="button" value="print" onclick="printGrid();">
+		<input type="button" value="📖 print" onclick="printGrid();">
 
 	</form>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.6.0/tinycolor.min.js"
+		integrity="sha512-AvCfbOQzCVi2ctVWF4m89jLwTn/zVPJuS7rhiKyY3zqyCdbPqtvNa0I628GJqPytbowfFjkAGOpq85E5kQc40Q=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<script>
 
 		const oElement = document.documentElement;
@@ -131,9 +138,6 @@
 
 		canvas.on('mouse:down', function (e) {
 			if (poly == true) {
-
-				// NOTE: Make all objects not selectable while drawing.
-				canvas.getObjects().map(item => item.selectable = false);
 
 				polyline = new fabric[polyType](pts, {
 					objectCaching: false,
@@ -246,10 +250,14 @@
 				if (polyBtn == 'polygon') {
 					polyType = 'Polygon';
 					poly = true;
-					bgColor = document.querySelector('.edit input#fill').value;
+					bgColor = tinycolor(document.querySelector('.edit input#fill').value).setAlpha(.5).toRgbString();
 					sColor = document.querySelector('.edit input#fill').value;
 					spessore = 0;
 				}
+
+				// NOTE: Make all objects not selectable while drawing.
+				canvas.getObjects().map(item => item.selectable = false);
+
 			}, false);
 
 		}
@@ -260,6 +268,20 @@
 		document.querySelector('.edit input#fill').oninput = (e) => {
 			objs = canvas.getActiveObjects();
 			objs.map(obj => obj.get('type') === 'polygon' ? obj.fill = e.target.value : "");
+		}
+		// NOTE: Save: https://stackoverflow.com/questions/40280110/how-to-add-transparency-to-a-value-from-a-html-input-type-color-field-in-css
+		document.querySelector('.file input#save').onclick = () => {
+			var json = canvas.toJSON();
+			alert(JSON.stringify(json));
+			localStorage.setItem("iso-grid", JSON.stringify(json));
+		}
+		document.querySelector('.file input#load').onclick = () => {
+			var json = localStorage.getItem("iso-grid");
+			canvas.loadFromJSON(json, function () {
+				canvas.renderAll();
+			}, function (o, object) {
+				console.log(o, object)
+			})
 		}
 
 		function downloadCell() {

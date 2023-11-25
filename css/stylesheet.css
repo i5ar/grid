@@ -22,7 +22,6 @@ aside div {
 
 aside input {
 	margin: 0 0 0 0.5em;
-	height: 2em;
 }
 
 form {
@@ -42,7 +41,6 @@ form label span::before {
 
 form input {
 	margin: 0 1em 0 0.5em;
-	height: 2em;
 }
 
 form [for="stroke-style"] {
