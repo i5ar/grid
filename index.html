@@ -127,6 +127,18 @@
 		var spessore;
 		var id = -1;
 
+		// NOTE: Snap to grid using the nearest multiple instead of mouse.y and mouse.x.
+		const gridSettingsElement = document.getElementById('settings');
+		function snapCoord() {
+			const cellHeightElement = gridSettingsElement['cell-height'];
+			const cellHeight = parseInt(cellHeightElement.value, 10);
+			const cellWidth = cellHeight * Math.sqrt(3);
+			const gridModuleX = Math.floor(cellWidth / 2);
+			const gridModuleY = cellHeight / 2;
+			const nearestMultiple = (n, gridModule) => Math.round(n / gridModule) * gridModule;
+			return { x: nearestMultiple(mouse.x, gridModuleX), y: nearestMultiple(mouse.y, gridModuleY) };
+		}
+
 		canvas = new fabric.Canvas(document.querySelector("canvas"), {
 			objectCaching: false
 		});
@@ -137,9 +149,7 @@
 		canvas.on('mouse:down', function (e) {
 			if (poly == true) {
 
-				// if (pts.length > 1) { pts.splice(-1, 1); } // remove duplicate start points
-
-				polyline = new fabric.Polyline(pts, {
+				polyline = new fabric[polyType](pts, {
 					objectCaching: false,
 					name: 'temp',
 					fill: '',
@@ -147,30 +157,19 @@
 					strokeWidth: 4,
 					originX: 'center',
 					originY: 'center',
-					selectable: false
+					selectable: false,
 				});
 
-				// NOTE: Snap to grid using the nearest multiple instead of mouse.y and mouse.x.
-				const gridSettingsElement = document.getElementById('settings');
-				const cellHeightElement = gridSettingsElement['cell-height'];
-				const cellHeight = parseInt(cellHeightElement.value, 10);
-				const cellWidth = cellHeight * Math.sqrt(3);
-				const gridModuleX = Math.floor(cellWidth / 2);
-				const gridModuleY = cellHeight / 2;
-				const nearestMultiple = (n, gridModule) => Math.round(n / gridModule) * gridModule;
-				const nearestX = nearestMultiple(mouse.x, gridModuleX);
-				const nearestY = nearestMultiple(mouse.y, gridModuleY);
-
+				const snap = snapCoord();
+				polyline.points[pts.length] = { x: snap.x, y: snap.y };
 				canvas.add(polyline);
-
-				polyline.points[pts.length] = { x: nearestX, y: nearestY };
 				lastPt++;
 				mouseDown = true;
 				document.querySelector("#debug").textContent = JSON.stringify(pts)
 
 			} else {
 				// NOTE: Make all objects selectable while not drawing.
-				canvas.getObjects().map(obj_ => obj_.selectable = true);
+				canvas.getObjects().map(item => item.selectable = true);
 			}
 		});
 
@@ -178,31 +177,19 @@
 			mouse = canvas.getPointer(e.e);
 			if (poly == true && mouseDown) {
 
+				const snap = snapCoord();
 
-
-				// NOTE: Snap to grid using the nearest multiple instead of mouse.y and mouse.x.
-				const gridSettingsElement = document.getElementById('settings');
-				const cellHeightElement = gridSettingsElement['cell-height'];
-				const cellHeight = parseInt(cellHeightElement.value, 10);
-				const cellWidth = cellHeight * Math.sqrt(3);
-				const gridModuleX = Math.floor(cellWidth / 2);
-				const gridModuleY = cellHeight / 2;
-				const nearestMultiple = (n, gridModule) => Math.round(n / gridModule) * gridModule;
-				const nearestX = nearestMultiple(mouse.x, gridModuleX);
-				const nearestY = nearestMultiple(mouse.y, gridModuleY);
-
-
-
-				polyline.points[lastPt - 1] = { x: nearestX, y: nearestY };
+				polyline.points[lastPt - 1] = { x: snap.x, y: snap.y };
 				canvas.renderAll();
 			}
 		});
 
-		canvas.on('mouse:dblclick', function (e) {
+		function createPolyObj(points) {
 			canvas.forEachObject(function (obj) {
-				if (obj.name == 'temp') canvas.remove(obj);
+				if (obj.name === 'temp') canvas.remove(obj);
 			});
-			polyObj = new fabric[polyType](pts, {
+
+			polyObj = new fabric[polyType](points, {
 				objectCaching: false,
 				id: id++,
 				fill: bgColor,
@@ -210,8 +197,16 @@
 				strokeWidth: spessore,
 				originX: 'center',
 				originY: 'center',
-				selectable: true
+				selectable: true,
+				// Remove controls: http://fabricjs.com/customization
+				hasControls: false,
+				lockRotation: true,
+				lockScalingX: true,
+				lockScalingY: true,
+				lockMovementX: true,
+				lockMovementY: true
 			});
+
 			canvas.add(polyObj);
 			poly = false;
 			polyBtn = '';
@@ -220,34 +215,16 @@
 			pts = [];
 
 			document.querySelector('.draw input').classList.remove('active');
+		}
 
-		}); //end dblclick
+		canvas.on('mouse:dblclick', function (e) {
+			createPolyObj(pts);
+		});
 
 		document.onkeydown = function (evt) {
 			evt = evt || window.event;
 			if (evt.key === "Delete") canvas.remove(...canvas.getActiveObjects());
-			else if (evt.key === "Escape") {
-				canvas.forEachObject(function (obj) {
-					if (obj.name == 'temp') canvas.remove(obj);
-				});
-				polyObj = new fabric[polyType](pts.slice(0, -1), {
-					objectCaching: false,
-					id: id++,
-					fill: bgColor,
-					stroke: sColor,
-					strokeWidth: spessore,
-					originX: 'center',
-					originY: 'center',
-					selectable: true
-				});
-				canvas.add(polyObj);
-				poly = false;
-				polyBtn = '';
-				lastPt = 1;
-				mouseDown = false;
-				pts = [];
-				document.querySelector('.draw input').classList.remove('active');
-			}
+			else if (evt.key === "Escape") createPolyObj(pts.slice(0, -1));
 		};
 
 		canvas.on('selection:created', function () {
@@ -261,6 +238,9 @@
 		for (let i = 0; i < drawInputs.length; i++) {
 
 			drawInputs[i].addEventListener('click', function (event) {
+
+				// NOTE: Make all objects not selectable while drawing.
+				canvas.getObjects().map(item => item.selectable = false);
 
 				for (let i = 0; i < drawInputs.length; i++) {
 					drawInputs[i].classList.remove('active');
@@ -297,10 +277,6 @@
 					sColor = 'yellow';
 					spessore = 0;
 				}
-
-				// NOTE: Make all objects not selectable while drawing.
-				canvas.getObjects().map(obj_ => obj_.selectable = false);
-
 			}, false);
 
 		}
