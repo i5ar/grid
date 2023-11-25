@@ -7,66 +7,6 @@
 	<meta name="description" content="isometric grid generator">
 	<title>isometric grid generator</title>
 	<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
-	<script type="text/javascript">
-
-		const oElement = document.documentElement;
-		const oCanvas = document.createElement('canvas');
-		const oContext = oCanvas.getContext("2d");
-
-		function updateGrid() {
-			const gridSettingsElement = document.getElementById('settings');
-
-			const cellHeightElement = gridSettingsElement['cell-height'];
-
-			const lineWidthElement = gridSettingsElement['line-width'];
-			const strokeStyleElement = gridSettingsElement['stroke-style'];
-
-			const cellHeight = parseInt(cellHeightElement.value, 10);
-			const cellWidth = cellHeight * Math.sqrt(3);
-
-			const lineWidth = parseInt(lineWidthElement.value, 10);
-
-			const strokeStyle = strokeStyleElement.value;
-
-			gridSettingsElement.querySelector("label[for='cell-height'] span").innerHTML = cellHeight;
-			gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
-			gridSettingsElement.querySelector("label[for='stroke-style'] span").innerHTML = strokeStyle;
-
-			oCanvas.setAttribute('width', cellWidth);
-			oCanvas.setAttribute('height', cellHeight);
-
-			oContext.clearRect(0, 0, cellWidth, cellHeight);
-
-			oContext.strokeStyle = strokeStyle;
-			oContext.lineWidth = lineWidth;
-
-			oContext.beginPath();
-			oContext.moveTo(cellWidth / 2, 0);
-			oContext.lineTo(0, cellHeight / 2);
-			oContext.lineTo(cellWidth / 2, cellHeight);
-			oContext.lineTo(cellWidth, cellHeight / 2);
-			oContext.lineTo(cellWidth / 2, 0);
-			oContext.lineTo(cellWidth / 2, cellHeight);
-			oContext.moveTo(cellWidth, 0);
-			oContext.lineTo(cellWidth, cellHeight);
-			oContext.moveTo(0, 0);
-			oContext.lineTo(0, cellHeight);
-			oContext.stroke();
-
-			oElement.style.backgroundImage = 'url("' + oCanvas.toDataURL() + '")';
-		}
-
-		function downloadCell() {
-			const link = document.createElement('a');
-			link.download = 'isometric.png';
-			link.href = oCanvas.toDataURL()
-			link.click();
-		}
-
-		function printGrid() {
-			window.print();
-		}
-	</script>
 </head>
 
 <body onload="updateGrid();">
@@ -109,9 +49,55 @@
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 	<script>
+
+		const oElement = document.documentElement;
+		const oCanvas = document.createElement('canvas');
+		const oContext = oCanvas.getContext("2d");
+
+		const gridSettingsElement = document.getElementById('settings');
+		const cellHeightElement = gridSettingsElement['cell-height'];
+		const lineWidthElement = gridSettingsElement['line-width'];
+		const strokeStyleElement = gridSettingsElement['stroke-style'];
+
+		function updateGrid() {
+			const cellHeight = parseInt(cellHeightElement.value, 10);
+			const cellWidth = cellHeight * Math.sqrt(3);
+
+			const lineWidth = parseInt(lineWidthElement.value, 10);
+
+			const strokeStyle = strokeStyleElement.value;
+
+			gridSettingsElement.querySelector("label[for='cell-height'] span").innerHTML = cellHeight;
+			gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
+			gridSettingsElement.querySelector("label[for='stroke-style'] span").innerHTML = strokeStyle;
+
+			oCanvas.setAttribute('width', cellWidth);
+			oCanvas.setAttribute('height', cellHeight);
+
+			oContext.clearRect(0, 0, cellWidth, cellHeight);
+
+			oContext.strokeStyle = strokeStyle;
+			oContext.lineWidth = lineWidth;
+
+			oContext.beginPath();
+			oContext.moveTo(cellWidth / 2, 0);
+			oContext.lineTo(0, cellHeight / 2);
+			oContext.lineTo(cellWidth / 2, cellHeight);
+			oContext.lineTo(cellWidth, cellHeight / 2);
+			oContext.lineTo(cellWidth / 2, 0);
+			oContext.lineTo(cellWidth / 2, cellHeight);
+			oContext.moveTo(cellWidth, 0);
+			oContext.lineTo(cellWidth, cellHeight);
+			oContext.moveTo(0, 0);
+			oContext.lineTo(0, cellHeight);
+			oContext.stroke();
+
+			oElement.style.backgroundImage = 'url("' + oCanvas.toDataURL() + '")';
+		}
+
+
 		// https://stackoverflow.com/questions/58711027/draw-a-straight-line-between-two-points-selected-in-a-mouse-down-event
 
-		//revised 3/2/2021 - switched splice() to mousedown
 		// https://codepen.io/Rstewart/pen/ZEBORxN
 		var canvas;
 		var obj;
@@ -128,9 +114,7 @@
 		var id = -1;
 
 		// NOTE: Snap to grid using the nearest multiple instead of mouse.y and mouse.x.
-		const gridSettingsElement = document.getElementById('settings');
 		function snapCoord() {
-			const cellHeightElement = gridSettingsElement['cell-height'];
 			const cellHeight = parseInt(cellHeightElement.value, 10);
 			const cellWidth = cellHeight * Math.sqrt(3);
 			const gridModuleX = Math.floor(cellWidth / 2);
@@ -283,6 +267,17 @@
 
 		// NOTE: Remove object.
 		document.querySelector('.edit input#remove').onclick = () => canvas.remove(...canvas.getActiveObjects());
+
+		function downloadCell() {
+			const link = document.createElement('a');
+			link.download = 'isometric.png';
+			link.href = oCanvas.toDataURL()
+			link.click();
+		}
+
+		function printGrid() {
+			window.print();
+		}
 
 	</script>
 </body>
