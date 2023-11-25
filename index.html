@@ -27,7 +27,9 @@
 		</div>
 		<div class="file">
 			<input type="button" id="save" value="💾 save">
-			<input type="button" id="load" value="⬆️ load">
+			<input type="button" id="open" value="📂 open">
+			<input type="button" id="download" value="⬇️ download" />
+			<input type="file" id="upload" />
 		</div>
 
 		<!-- <div id="debug">double click to end polyline or close polygon</div> -->
@@ -42,7 +44,8 @@
 		<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
 
 		<label for="stroke-style">stroke style<span></span></label>
-		<input type="color" id="stroke-style" value="#888888" name="stroke-style" style="height: 24px" oninput="updateGrid();" />
+		<input type="color" id="stroke-style" value="#888888" name="stroke-style" style="height: 24px"
+			oninput="updateGrid();" />
 
 		<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
 
@@ -273,15 +276,39 @@
 		document.querySelector('.file input#save').onclick = () => {
 			var json = canvas.toJSON();
 			alert(JSON.stringify(json));
-			localStorage.setItem("iso-grid", JSON.stringify(json));
+			localStorage.setItem("isometric", JSON.stringify(json));
 		}
-		document.querySelector('.file input#load').onclick = () => {
-			var json = localStorage.getItem("iso-grid");
+		document.querySelector('.file input#open').onclick = () => {
+			var json = localStorage.getItem("isometric");
 			canvas.loadFromJSON(json, function () {
 				canvas.renderAll();
 			}, function (o, object) {
 				console.log(o, object)
 			})
+		}
+		document.querySelector('.file input#download').onclick = (e) => {
+			const json = canvas.toJSON();
+			const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+			const anchor = document.createElement('a');
+			anchor.setAttribute("href", data);
+			anchor.setAttribute("download", "isometric.json");
+			document.body.appendChild(anchor); // required for firefox
+			anchor.click();
+			anchor.remove();
+		}
+		document.querySelector('.file input#upload').oninput = (e) => {
+			var file = e.target.files[0];
+			if (!file) return;
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				var contents = e.target.result;
+				canvas.loadFromJSON(contents, function () {
+					canvas.renderAll();
+				}, function (o, object) {
+					console.log(o, object)
+				})
+			};
+			reader.readAsText(file);
 		}
 
 		function downloadCell() {
