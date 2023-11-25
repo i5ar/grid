@@ -18,16 +18,15 @@
 
 	<aside>
 		<div class="draw">
-			<input type="button" class="line" id="polyline" value="polyline">
-			<input type="button" id="polygon-magenta" value="polygon xz" class="solid magenta">
-			<input type="button" id="polygon-cyan" value="polygon yz" class="solid cyan">
-			<input type="button" id="polygon-yellow" value="polygon xy" class="solid yellow">
+			<input type="button" id="polyline" value="polyline" />
+			<input type="button" id="polygon" value="polygon" />
 		</div>
 		<div class="edit">
-			<input type="button" id="remove" value="remove" class="solid gray">
+			<input type="color" id="fill" value="#ff00ff" style="vertical-align: middle"/>
+			<input type="button" id="remove" value="remove" />
 		</div>
 
-		<div id="debug">double click to end polyline or close polygon</div>
+		<!-- <div id="debug">double click to end polyline or close polygon</div> -->
 	</aside>
 
 	<form id="settings">
@@ -133,6 +132,9 @@
 		canvas.on('mouse:down', function (e) {
 			if (poly == true) {
 
+				// NOTE: Make all objects not selectable while drawing.
+				canvas.getObjects().map(item => item.selectable = false);
+
 				polyline = new fabric[polyType](pts, {
 					objectCaching: false,
 					name: 'temp',
@@ -149,7 +151,7 @@
 				canvas.add(polyline);
 				lastPt++;
 				mouseDown = true;
-				document.querySelector("#debug").textContent = JSON.stringify(pts)
+				// document.querySelector("#debug").textContent = JSON.stringify(pts)
 
 			} else {
 				// NOTE: Make all objects selectable while not drawing.
@@ -168,7 +170,7 @@
 			}
 		});
 
-		function createPolyObj(points) {
+		function createObj(points) {
 			canvas.forEachObject(function (obj) {
 				if (obj.name === 'temp') canvas.remove(obj);
 			});
@@ -202,18 +204,24 @@
 		}
 
 		canvas.on('mouse:dblclick', function (e) {
-			createPolyObj(pts);
+			createObj(pts);
 		});
 
 		document.onkeydown = function (evt) {
-			evt = evt || window.event;
 			if (evt.key === "Delete") canvas.remove(...canvas.getActiveObjects());
-			else if (evt.key === "Escape") createPolyObj(pts.slice(0, -1));
+			else if (evt.key === "Escape") createObj(pts.slice(0, -1));
 		};
 
-		canvas.on('selection:created', function () {
+		canvas.on('selection:created', function (e) {
 			obj = canvas.getActiveObject();
+			obj.hasControls = false;
+			obj.lockRotation = true;
+			obj.lockScalingX = true;
+			obj.lockScalingY = true;
+			obj.lockMovementX = true;
+			obj.lockMovementY = true;
 		});
+
 		canvas.on('selection:cleared', function () {
 			obj = '';
 		});
@@ -223,12 +231,7 @@
 
 			drawInputs[i].addEventListener('click', function (event) {
 
-				// NOTE: Make all objects not selectable while drawing.
-				canvas.getObjects().map(item => item.selectable = false);
-
-				for (let i = 0; i < drawInputs.length; i++) {
-					drawInputs[i].classList.remove('active');
-				}
+				for (let i = 0; i < drawInputs.length; i++) drawInputs[i].classList.remove('active');
 
 				this.classList.add('active');
 				polyBtn = this.getAttribute("id");
@@ -240,25 +243,11 @@
 					sColor = 'black';
 					spessore = 4;
 				}
-				if (polyBtn == 'polygon-magenta') {
+				if (polyBtn == 'polygon') {
 					polyType = 'Polygon';
 					poly = true;
-					bgColor = 'rgba(255,0,255,0.5)';
-					sColor = 'magenta';
-					spessore = 0;
-				}
-				if (polyBtn == 'polygon-cyan') {
-					polyType = 'Polygon';
-					poly = true;
-					bgColor = 'rgba(0,255,255,0.5)';
-					sColor = 'cyan';
-					spessore = 0;
-				}
-				if (polyBtn == 'polygon-yellow') {
-					polyType = 'Polygon';
-					poly = true;
-					bgColor = 'rgba(255,255,0,0.5)';
-					sColor = 'yellow';
+					bgColor = document.querySelector('.edit input#fill').value;
+					sColor = document.querySelector('.edit input#fill').value;
 					spessore = 0;
 				}
 			}, false);
@@ -267,6 +256,11 @@
 
 		// NOTE: Remove object.
 		document.querySelector('.edit input#remove').onclick = () => canvas.remove(...canvas.getActiveObjects());
+		// NOTE: Edit fill color.
+		document.querySelector('.edit input#fill').oninput = (e) => {
+			objs = canvas.getActiveObjects();
+			objs.map(obj => obj.get('type') === 'polygon' ? obj.fill = e.target.value : "");
+		}
 
 		function downloadCell() {
 			const link = document.createElement('a');
