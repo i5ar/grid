@@ -22,6 +22,7 @@ aside div {
 
 aside input {
 	margin: 0 0 0 0.5em;
+	font-size: 1em;
 }
 
 form {
@@ -41,10 +42,17 @@ form label span::before {
 
 form input {
 	margin: 0 1em 0 0.5em;
+	font-size: 1em;
 }
 
 form [for="stroke-style"] {
 	display: none;
+}
+
+fieldset {
+	margin: 0 2em;
+	border: 0;
+	padding: 0;
 }
 
 @media print {
@@ -61,4 +69,8 @@ form [for="stroke-style"] {
 	form [for="stroke-style"] {
 		display: flex;
 	}
+}
+
+.active {
+	color: darkgray;
 }

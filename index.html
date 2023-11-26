@@ -23,11 +23,13 @@
 		</div>
 		<div class="edit">
 			<input type="color" id="fill" value="#ff00ff" style="height: 24px" />
+			<input type="button" id="sendtoback" value="🔽 send to back" />
 			<input type="button" id="remove" value="❌ remove" />
 		</div>
 		<div class="file">
-			<input type="button" id="save" value="💾 save">
-			<input type="button" id="open" value="📂 open">
+			<input type="button" id="store" value="⤵️ store">
+			<input type="button" id="restore" value="🔃 restore">
+
 			<input type="button" id="download" value="⬇️ download" />
 			<input type="file" id="upload" />
 		</div>
@@ -36,6 +38,17 @@
 	</aside>
 
 	<form id="settings">
+		<fieldset>
+			<!-- <legend>grid: </legend> -->
+
+			<input type="radio" id="isometrica" name="grid" value="isometrica" checked />
+			<label for="isometrica">isometrica</label>
+
+			<input type="radio" id="cavaliera" name="grid" value="cavaliera" />
+			<label for="cavaliera">cavaliera</label>
+
+		</fieldset>
+
 
 		<label for="cell-height">cell height<span></span></label>
 		<input type="range" id="cell-height" value="64" name="cell-height" min="10" max="200" oninput="updateGrid();" />
@@ -115,7 +128,6 @@
 		var pts = [];
 		var lastPt = 1;
 		var polyType = 'Polyline';
-		var polyBtn;
 		var poly = false;
 		var bgColor;
 		var sColor;
@@ -177,6 +189,28 @@
 			}
 		});
 
+		function drawObj(elm, type) {
+			polyType = type;
+			poly = true;
+			[...document.querySelectorAll(".draw input")].map(elm => elm.classList.remove('active'));
+			if (polyType === 'Polyline') {
+				elm.classList.add('active');
+				bgColor = '';
+				sColor = 'black';
+				spessore = 4;
+			} else if (polyType === 'Polygon') {
+				elm.classList.add('active');
+				bgColor = tinycolor(document.querySelector('.edit input#fill').value).setAlpha(.5).toRgbString();
+				sColor = document.querySelector('.edit input#fill').value;
+				spessore = 0;
+			}
+			// NOTE: Make all objects not selectable while drawing.
+			canvas.getObjects().map(item => item.selectable = false);
+			// NOTE: Cursor
+			canvas.defaultCursor = 'crosshair';
+			canvas.hoverCursor = 'crosshair';
+		}
+
 		function createObj(points) {
 			canvas.forEachObject(function (obj) {
 				if (obj.name === 'temp') canvas.remove(obj);
@@ -202,22 +236,18 @@
 
 			canvas.add(polyObj);
 			poly = false;
-			polyBtn = '';
 			lastPt = 1;
 			mouseDown = false;
 			pts = [];
 
-			document.querySelector('.draw input').classList.remove('active');
+			[...document.querySelectorAll('.draw input')].map(elm => elm.classList.remove('active'));
+			canvas.defaultCursor = 'default';
+			canvas.hoverCursor = 'move';
 		}
 
 		canvas.on('mouse:dblclick', function (e) {
 			createObj(pts);
 		});
-
-		document.onkeydown = function (evt) {
-			if (evt.key === "Delete") canvas.remove(...canvas.getActiveObjects());
-			else if (evt.key === "Escape") createObj(pts.slice(0, -1));
-		};
 
 		canvas.on('selection:created', function (e) {
 			obj = canvas.getActiveObject();
@@ -233,58 +263,36 @@
 			obj = '';
 		});
 
-		const drawInputs = document.querySelectorAll(".draw input");
-		for (let i = 0; i < drawInputs.length; i++) {
-
-			drawInputs[i].addEventListener('click', function (event) {
-
-				for (let i = 0; i < drawInputs.length; i++) drawInputs[i].classList.remove('active');
-
-				this.classList.add('active');
-				polyBtn = this.getAttribute("id");
-
-				if (polyBtn == 'polyline') {
-					polyType = 'Polyline';
-					poly = true;
-					bgColor = '';
-					sColor = 'black';
-					spessore = 4;
-				}
-				if (polyBtn == 'polygon') {
-					polyType = 'Polygon';
-					poly = true;
-					bgColor = tinycolor(document.querySelector('.edit input#fill').value).setAlpha(.5).toRgbString();
-					sColor = document.querySelector('.edit input#fill').value;
-					spessore = 0;
-				}
-
-				// NOTE: Make all objects not selectable while drawing.
-				canvas.getObjects().map(item => item.selectable = false);
-
-			}, false);
-
+		document.onkeydown = function (evt) {
+			if (evt.key === "Delete") canvas.remove(...canvas.getActiveObjects());
+			else if (evt.key === "Escape") createObj(pts.slice(0, -1));
+			else if (evt.key === "g") drawObj(document.querySelector('.draw input#polygon'), "Polygon");
+			else if (evt.key === "l") drawObj(document.querySelector('.draw input#polyline'), "Polyline");
 		}
+
+		document.querySelector('.draw input#polyline').onclick = (evt) => drawObj(evt.target, "Polyline");
+		document.querySelector('.draw input#polygon').onclick = (evt) => drawObj(evt.target, "Polygon");
 
 		// NOTE: Remove object.
 		document.querySelector('.edit input#remove').onclick = () => canvas.remove(...canvas.getActiveObjects());
+		// NOTE: Send back.
+		document.querySelector('.edit input#sendtoback').onclick = () => canvas.sendToBack(...canvas.getActiveObjects());
 		// NOTE: Edit fill color.
-		document.querySelector('.edit input#fill').oninput = (e) => {
-			objs = canvas.getActiveObjects();
-			objs.map(obj => obj.get('type') === 'polygon' ? obj.fill = e.target.value : "");
-		}
+		document.querySelector('.edit input#fill').oninput = (evt) => canvas.getActiveObjects().map(
+			obj => obj.get('type') === 'polygon' ? obj.fill = tinycolor(evt.target.value).setAlpha(.5).toRgbString() : "");
 		// NOTE: Save: https://stackoverflow.com/questions/40280110/how-to-add-transparency-to-a-value-from-a-html-input-type-color-field-in-css
-		document.querySelector('.file input#save').onclick = () => {
-			var json = canvas.toJSON();
+		document.querySelector('.file input#store').onclick = () => {
+			const json = canvas.toJSON();
 			alert(JSON.stringify(json));
 			localStorage.setItem("isometric", JSON.stringify(json));
 		}
-		document.querySelector('.file input#open').onclick = () => {
-			var json = localStorage.getItem("isometric");
+		document.querySelector('.file input#restore').onclick = () => {
+			const json = localStorage.getItem("isometric");
 			canvas.loadFromJSON(json, function () {
 				canvas.renderAll();
 			}, function (o, object) {
 				console.log(o, object)
-			})
+			});
 		}
 		document.querySelector('.file input#download').onclick = (e) => {
 			const json = canvas.toJSON();
@@ -296,17 +304,17 @@
 			anchor.click();
 			anchor.remove();
 		}
-		document.querySelector('.file input#upload').oninput = (e) => {
-			var file = e.target.files[0];
+		document.querySelector('.file input#upload').oninput = (evt) => {
+			var file = evt.target.files[0];
 			if (!file) return;
 			var reader = new FileReader();
-			reader.onload = function (e) {
-				var contents = e.target.result;
+			reader.onload = function (evt) {
+				var contents = evt.target.result;
 				canvas.loadFromJSON(contents, function () {
 					canvas.renderAll();
 				}, function (o, object) {
 					console.log(o, object)
-				})
+				});
 			};
 			reader.readAsText(file);
 		}
