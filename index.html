@@ -6,7 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="isometric grid generator">
 	<title>isometric grid generator</title>
-	<link rel="icon" type="image/x-icon" href="favicon.ico">
+	<link rel="icon"
+		href="data:image/svg+xml, <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>">
 	<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
 </head>
 
@@ -23,7 +24,7 @@
 			<input type="button" id="polygon" value="🟦 polygon" />
 		</div>
 		<div class="edit">
-			<input type="color" id="fill" value="#ff00ff" style="height: 24px" />
+			<input type="color" id="fill" value="#ff00ff" />
 			<input type="button" id="sendtoback" value="🔽 send to back" />
 			<input type="button" id="remove" value="❌ remove" />
 		</div>
@@ -31,7 +32,7 @@
 			<input type="button" id="store" value="⤵️ store">
 			<input type="button" id="restore" value="🔃 restore">
 
-			<input type="button" id="download" value="⬇️ download" />
+			<input type="button" id="download" value="💾 save" />
 			<input type="file" id="upload" />
 		</div>
 
@@ -39,17 +40,14 @@
 	</aside>
 
 	<form id="settings">
+
 		<fieldset>
 			<!-- <legend>grid: </legend> -->
-
-			<input type="radio" id="isometrica" name="grid" value="isometrica" checked />
-			<label for="isometrica">isometrica</label>
-
-			<input type="radio" id="cavaliera" name="grid" value="cavaliera" />
-			<label for="cavaliera">cavaliera</label>
-
+			<input type="radio" id="isometric" name="grid" value="isometric" checked oninput="updateGrid();" />
+			<label for="isometric">isometric</label>
+			<input type="radio" id="square" name="grid" value="square" oninput="updateGrid();" />
+			<label for="square">square</label>
 		</fieldset>
-
 
 		<label for="cell-height">cell height<span></span></label>
 		<input type="range" id="cell-height" value="64" name="cell-height" min="10" max="200" oninput="updateGrid();" />
@@ -58,8 +56,7 @@
 		<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
 
 		<label for="stroke-style">stroke style<span></span></label>
-		<input type="color" id="stroke-style" value="#888888" name="stroke-style" style="height: 24px"
-			oninput="updateGrid();" />
+		<input type="color" id="stroke-style" value="#888888" name="stroke-style" oninput="updateGrid();" />
 
 		<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
 
@@ -83,37 +80,55 @@
 		const strokeStyleElement = gridSettingsElement['stroke-style'];
 
 		function updateGrid() {
-			const cellHeight = parseInt(cellHeightElement.value, 10);
-			const cellWidth = cellHeight * Math.sqrt(3);
+			const gridType = gridSettingsElement.querySelector('input[name="grid"]:checked').value;
 
 			const lineWidth = parseInt(lineWidthElement.value, 10);
+			gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
 
 			const strokeStyle = strokeStyleElement.value;
-
-			gridSettingsElement.querySelector("label[for='cell-height'] span").innerHTML = cellHeight;
-			gridSettingsElement.querySelector("label[for='line-width'] span").innerHTML = lineWidth;
 			gridSettingsElement.querySelector("label[for='stroke-style'] span").innerHTML = strokeStyle;
 
-			oCanvas.setAttribute('width', cellWidth);
-			oCanvas.setAttribute('height', cellHeight);
+			const cellHeight = parseInt(cellHeightElement.value, 10);
+			gridSettingsElement.querySelector("label[for='cell-height'] span").innerHTML = cellHeight;
 
-			oContext.clearRect(0, 0, cellWidth, cellHeight);
+			if (gridType === 'isometric') {
 
-			oContext.strokeStyle = strokeStyle;
-			oContext.lineWidth = lineWidth;
+				const cellWidth = cellHeight * Math.sqrt(3);
 
-			oContext.beginPath();
-			oContext.moveTo(cellWidth / 2, 0);
-			oContext.lineTo(0, cellHeight / 2);
-			oContext.lineTo(cellWidth / 2, cellHeight);
-			oContext.lineTo(cellWidth, cellHeight / 2);
-			oContext.lineTo(cellWidth / 2, 0);
-			oContext.lineTo(cellWidth / 2, cellHeight);
-			oContext.moveTo(cellWidth, 0);
-			oContext.lineTo(cellWidth, cellHeight);
-			oContext.moveTo(0, 0);
-			oContext.lineTo(0, cellHeight);
-			oContext.stroke();
+				oCanvas.setAttribute('width', cellWidth);
+				oCanvas.setAttribute('height', cellHeight);
+
+				oContext.clearRect(0, 0, cellWidth, cellHeight);
+
+				oContext.strokeStyle = strokeStyle;
+				oContext.lineWidth = lineWidth;
+
+				oContext.beginPath();
+				oContext.moveTo(cellWidth / 2, 0);
+				oContext.lineTo(0, cellHeight / 2);
+				oContext.lineTo(cellWidth / 2, cellHeight);
+				oContext.lineTo(cellWidth, cellHeight / 2);
+				oContext.lineTo(cellWidth / 2, 0);
+				oContext.lineTo(cellWidth / 2, cellHeight);
+				oContext.moveTo(cellWidth, 0);
+				oContext.lineTo(cellWidth, cellHeight);
+				oContext.moveTo(0, 0);
+				oContext.lineTo(0, cellHeight);
+				oContext.stroke();
+			} else {
+				oCanvas.setAttribute('width', cellHeight);
+				oCanvas.setAttribute('height', cellHeight);
+				oContext.clearRect(0, 0, cellHeight, cellHeight);
+				oContext.strokeStyle = strokeStyle;
+				oContext.lineWidth = lineWidth;
+				oContext.beginPath();
+				oContext.moveTo(0, 0);
+				oContext.lineTo(cellHeight, 0);
+				oContext.lineTo(cellHeight, cellHeight);
+				oContext.lineTo(0, cellHeight);
+				oContext.lineTo(0, 0);
+				oContext.stroke();
+			}
 
 			oElement.style.backgroundImage = 'url("' + oCanvas.toDataURL() + '")';
 		}
@@ -137,12 +152,22 @@
 
 		// NOTE: Snap to grid using the nearest multiple instead of mouse.y and mouse.x.
 		function snapCoord() {
-			const cellHeight = parseInt(cellHeightElement.value, 10);
-			const cellWidth = cellHeight * Math.sqrt(3);
-			const gridModuleX = Math.floor(cellWidth / 2);
-			const gridModuleY = cellHeight / 2;
-			const nearestMultiple = (n, gridModule) => Math.round(n / gridModule) * gridModule;
-			return { x: nearestMultiple(mouse.x, gridModuleX), y: nearestMultiple(mouse.y, gridModuleY) };
+			const gridType = gridSettingsElement.querySelector('input[name="grid"]:checked').value;
+			if (gridType === 'isometric') {
+				const cellHeight = parseInt(cellHeightElement.value, 10);
+				const cellWidth = cellHeight * Math.sqrt(3);
+				const gridModuleX = Math.floor(cellWidth / 2);
+				const gridModuleY = cellHeight / 2;
+				const nearestMultiple = (n, gridModule) => Math.round(n / gridModule) * gridModule;
+				return { x: nearestMultiple(mouse.x, gridModuleX), y: nearestMultiple(mouse.y, gridModuleY) };
+			} else {
+				const cellHeight = parseInt(cellHeightElement.value, 10);
+				const cellWidth = cellHeight;
+				const gridModuleX = Math.floor(cellWidth);
+				const gridModuleY = cellHeight;
+				const nearestMultiple = (n, gridModule) => Math.round(n / gridModule) * gridModule;
+				return { x: nearestMultiple(mouse.x, gridModuleX), y: nearestMultiple(mouse.y, gridModuleY) };
+			}
 		}
 
 		canvas = new fabric.Canvas(document.querySelector("canvas"), {
