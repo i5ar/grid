@@ -75,6 +75,23 @@ fieldset {
 	color: darkgray;
 }
 
-input[type=color] {
-	height: 24px;
+input[type=color],
+input[type=file] {
+	height: 26px;
+}
+
+/* Make label look like a button input */
+.btn {
+	display: inline-block;
+	font-family: 'Helvetica', Arial, Lucida Grande, sans-serif;
+	margin: 0 1em 0 0.5em;
+    cursor: default;
+    background-color: buttonface;
+    color: buttontext;
+    padding-block: 2px;
+    padding-inline: 6px;
+    border-width: 1px;
+	border-radius: 3px;
+    border-style: outset;
+    border-color: buttonborder;
 }
