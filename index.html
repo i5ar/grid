@@ -13,60 +13,61 @@
 
 <body onload="updateGrid();">
 
-	<main id="sketch-holder">
-
-		<canvas id="canvas" class="canvas"></canvas>
-	</main>
-
 	<aside>
-		<div class="draw">
+		<form class="draw">
 			<input type="button" id="polyline" value="⏹️ polyline (f)" />
 			<input type="button" id="polygon" value="🟦 polygon (g)" />
-		</div>
-		<div class="edit">
+		</form>
+		<form class="edit">
 			<input type="color" id="fill" value="#ff00ff" />
 			<input type="button" id="explode" value="💥 explode (x)" />
 			<!-- <input type="button" id="undo" value="↩️"> -->
 			<!-- <input type="button" id="redo" value="↪️" disabled> -->
 			<input type="button" id="sendtoback" value="🔽 send to back" />
 			<input type="button" id="remove" value="❌ remove" />
-		</div>
-		<div class="file">
+		</form>
+		<form class="file">
 			<input type="button" id="store" value="⤵️ store">
 			<input type="button" id="restore" value="🔃 restore">
 
 			<input type="button" id="download" value="💾 save" />
 			<input type="file" id="upload" style="display:none;" />
 			<input type="button" onclick="document.getElementById('upload').click();" value="📂 open" />
-		</div>
-
+		</form>
 		<!-- <div id="debug">double click to end polyline or close polygon</div> -->
 	</aside>
 
-	<form id="settings">
+	<main id="sketch-holder">
+		<canvas id="canvas" class="canvas"></canvas>
+	</main>
 
-		<fieldset>
-			<!-- <legend>grid: </legend> -->
-			<input type="radio" id="isometric" name="grid" value="isometric" checked oninput="updateGrid();" />
-			<label for="isometric">isometric</label>
-			<input type="radio" id="square" name="grid" value="square" oninput="updateGrid();" />
-			<label for="square">square</label>
-		</fieldset>
+	<footer>
+		<form id="settings">
 
-		<label for="cell-height">cell height<span></span></label>
-		<input type="range" id="cell-height" value="64" name="cell-height" min="10" max="200" oninput="updateGrid();" />
+			<fieldset>
+				<!-- <legend>grid: </legend> -->
+				<input type="radio" id="isometric" name="grid" value="isometric" checked oninput="updateGrid();" />
+				<label for="isometric">isometric</label>
+				<input type="radio" id="square" name="grid" value="square" oninput="updateGrid();" />
+				<label for="square">square</label>
+			</fieldset>
 
-		<label for="line-width">line width<span></span></label>
-		<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
+			<label for="cell-height">cell height<span></span></label>
+			<input type="range" id="cell-height" value="64" name="cell-height" min="10" max="200"
+				oninput="updateGrid();" />
 
-		<label for="stroke-style">stroke style<span></span></label>
-		<input type="color" id="stroke-style" value="#888888" name="stroke-style" oninput="updateGrid();" />
+			<label for="line-width">line width<span></span></label>
+			<input type="range" id="line-width" value="1" name="line-width" min="1" max="20" oninput="updateGrid();" />
 
-		<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
+			<label for="stroke-style">stroke style<span></span></label>
+			<input type="color" id="stroke-style" value="#888888" name="stroke-style" oninput="updateGrid();" />
 
-		<input type="button" value="📖 print" onclick="printGrid();">
+			<!-- <input type="button" value="download" onclick="downloadCell();" /> -->
 
-	</form>
+			<input type="button" value="📖 print" onclick="printGrid();">
+
+		</form>
+	</footer>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.6.0/tinycolor.min.js"
